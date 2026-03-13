@@ -17,7 +17,13 @@ AVAILABILITY_D_TAG = "nostrcal/availability"
 
 
 async def _query_events(relay_url: str, filters: dict) -> list:
-    """Subscribe and collect all events until EOSE."""
+    """Subscribe and collect all events until EOSE.
+
+    Security note: Events returned here are NOT signature-verified by this SDK.
+    Signature verification is the consumer's responsibility — the relay may
+    return forged or replayed events. Consumers SHOULD call
+    ``nostrkey.verify_event()`` on each event before trusting its content.
+    """
     events = []
     async with RelayClient(relay_url) as relay:
         async for event in relay.subscribe([filters]):
@@ -76,7 +82,12 @@ async def get_availability(
     if not events:
         return None
 
-    data = json.loads(events[0].content)
+    try:
+        data = json.loads(events[0].content)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"Failed to parse availability event content as JSON: {exc}"
+        ) from exc
     return AvailabilityRule.from_dict(data)
 
 

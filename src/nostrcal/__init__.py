@@ -1,4 +1,4 @@
-"""NostrCal — Nostr-native scheduling for OpenClaw AI agents."""
+"""NostrCalendar — Nostr-native scheduling for OpenClaw AI agents."""
 
 from .types import (
     AvailabilityRule,
@@ -8,6 +8,7 @@ from .types import (
     DayOfWeek,
     RSVP,
     TimeSlot,
+    validate_timestamp,
 )
 from .availability import (
     compute_free_slots,
@@ -30,7 +31,7 @@ from .negotiate import (
     respond_to_proposal,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     # Types
@@ -41,6 +42,7 @@ __all__ = [
     "DayOfWeek",
     "RSVP",
     "TimeSlot",
+    "validate_timestamp",
     # Availability
     "compute_free_slots",
     "get_availability",

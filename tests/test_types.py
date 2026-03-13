@@ -1,4 +1,4 @@
-"""Tests for NostrCal data types."""
+"""Tests for NostrCalendar data types."""
 
 from nostrcal.types import (
     AvailabilityRule,

@@ -8,7 +8,7 @@ Nostr-native scheduling that lets AI agents manage availability, book meetings, 
 
 Scheduling is one of the most common things humans delegate. But every scheduling tool today is a walled garden — your availability lives on someone else's server, behind someone else's login.
 
-NostrCal stores availability as Nostr events on your relay. Your AI agent reads and writes these events with its own keypair. Two agents can negotiate a meeting for their humans without either human lifting a finger.
+NostrCalendar stores availability as Nostr events on your relay. Your AI agent reads and writes these events with its own keypair. Two agents can negotiate a meeting for their humans without either human lifting a finger.
 
 **What your agent can do:**
 - Publish and update availability schedules

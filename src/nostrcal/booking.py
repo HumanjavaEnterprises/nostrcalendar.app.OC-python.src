@@ -87,7 +87,7 @@ async def accept_booking(
     # Generate a deterministic d-tag from the booking details
     d_tag = hashlib.sha256(
         f"{request.requester_pubkey}:{request.requested_start}:{request.requested_end}".encode()
-    ).hexdigest()[:16]
+    ).hexdigest()[:32]
 
     cal_event = CalendarEvent(
         d_tag=d_tag,
@@ -164,7 +164,12 @@ def decrypt_calendar_event(
         A CalendarEvent with both public and private fields populated.
     """
     decrypted = decrypt(encrypted_content, identity.private_key_hex, event_pubkey)
-    private_content = json.loads(decrypted)
+    try:
+        private_content = json.loads(decrypted)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"Failed to parse decrypted calendar event content as JSON: {exc}"
+        ) from exc
     return CalendarEvent.from_tags_and_content(tags, private_content)
 
 

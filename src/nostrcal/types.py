@@ -1,7 +1,58 @@
-"""Data types for NostrCal — availability rules, calendar events, bookings."""
+"""Data types for NostrCalendar — availability rules, calendar events, bookings."""
 
 from dataclasses import dataclass, field
 from enum import Enum
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+# Timestamp boundaries: 2020-01-01 00:00:00 UTC and 2100-01-01 00:00:00 UTC
+_MIN_TIMESTAMP = 1_577_836_800
+_MAX_TIMESTAMP = 4_102_444_800
+
+
+def validate_timestamp(value: int, name: str = "timestamp") -> None:
+    """Validate that a Unix timestamp is a positive integer within a reasonable range.
+
+    Args:
+        value: The timestamp to validate.
+        name: Human-readable name for error messages.
+
+    Raises:
+        ValueError: If the timestamp is out of range.
+    """
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise ValueError(f"{name} must be an integer, got {type(value).__name__}")
+    if value < _MIN_TIMESTAMP or value > _MAX_TIMESTAMP:
+        raise ValueError(
+            f"{name} ({value}) is out of range. "
+            f"Must be between {_MIN_TIMESTAMP} (2020-01-01) and {_MAX_TIMESTAMP} (2100-01-01)."
+        )
+
+
+def _validate_timezone(tz_str: str) -> None:
+    """Validate a timezone string against the IANA tz database.
+
+    Rejects strings with null bytes or path separators that could be used for
+    injection attacks against file-system-backed timezone lookups.
+
+    Args:
+        tz_str: The timezone string to validate.
+
+    Raises:
+        ValueError: If the timezone is invalid or contains dangerous characters.
+    """
+    if not isinstance(tz_str, str) or not tz_str:
+        raise ValueError("timezone must be a non-empty string")
+    # Block null bytes and backslashes (path separator injection)
+    if "\x00" in tz_str or "\\" in tz_str:
+        raise ValueError(f"timezone contains invalid characters: {tz_str!r}")
+    # Block strings that look like path traversal
+    if ".." in tz_str:
+        raise ValueError(f"timezone contains path traversal: {tz_str!r}")
+    # Validate against the IANA tz database
+    try:
+        ZoneInfo(tz_str)
+    except (ZoneInfoNotFoundError, KeyError):
+        raise ValueError(f"Unknown timezone: {tz_str!r}")
 
 
 class DayOfWeek(Enum):
@@ -44,6 +95,39 @@ class AvailabilityRule:
     max_per_day: int = 8
     timezone: str = "UTC"
     title: str = "Available for booking"
+
+    # Upper bounds for integer fields to prevent memory/overflow issues
+    _MAX_SLOT_DURATION = 1440  # 24 hours in minutes
+    _MAX_BUFFER = 1440
+    _MAX_PER_DAY = 1000
+
+    def __post_init__(self) -> None:
+        _validate_timezone(self.timezone)
+        if not isinstance(self.slot_duration_minutes, int) or self.slot_duration_minutes < 1:
+            raise ValueError(
+                f"slot_duration_minutes must be a positive integer, got {self.slot_duration_minutes}"
+            )
+        if self.slot_duration_minutes > self._MAX_SLOT_DURATION:
+            raise ValueError(
+                f"slot_duration_minutes ({self.slot_duration_minutes}) exceeds maximum "
+                f"of {self._MAX_SLOT_DURATION}"
+            )
+        if not isinstance(self.buffer_minutes, int) or self.buffer_minutes < 0:
+            raise ValueError(
+                f"buffer_minutes must be a non-negative integer, got {self.buffer_minutes}"
+            )
+        if self.buffer_minutes > self._MAX_BUFFER:
+            raise ValueError(
+                f"buffer_minutes ({self.buffer_minutes}) exceeds maximum of {self._MAX_BUFFER}"
+            )
+        if not isinstance(self.max_per_day, int) or self.max_per_day < 1:
+            raise ValueError(
+                f"max_per_day must be a positive integer, got {self.max_per_day}"
+            )
+        if self.max_per_day > self._MAX_PER_DAY:
+            raise ValueError(
+                f"max_per_day ({self.max_per_day}) exceeds maximum of {self._MAX_PER_DAY}"
+            )
 
     def to_dict(self) -> dict:
         return {
@@ -110,6 +194,10 @@ class CalendarEvent:
     location: str = ""
     description: str = ""
     participants: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        validate_timestamp(self.start, "start")
+        validate_timestamp(self.end, "end")
 
     def to_tags(self) -> list[list[str]]:
         """Convert to NIP-52 event tags (public envelope only).
@@ -212,6 +300,10 @@ class BookingRequest:
     title: str = "Meeting"
     message: str = ""
     status: BookingStatus = BookingStatus.PENDING
+
+    def __post_init__(self) -> None:
+        validate_timestamp(self.requested_start, "requested_start")
+        validate_timestamp(self.requested_end, "requested_end")
 
     def to_dict(self) -> dict:
         return {

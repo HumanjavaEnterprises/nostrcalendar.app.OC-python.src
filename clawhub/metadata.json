@@ -1,7 +1,7 @@
 {
   "slug": "nostrcalendar",
   "name": "NostrCalendar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "summary": "Nostr-native scheduling — manage availability, book meetings, and negotiate times over relay",
   "author": {
     "name": "Humanjava Enterprises",
@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "acceptLicenseTerms": true,
-  "repository": "https://github.com/HumanjavaEnterprises/nostrcal.app.OC-python.src",
+  "repository": "https://github.com/HumanjavaEnterprises/nostrcalendar.app.OC-python.src",
   "tags": [
     "nostr",
     "calendar",

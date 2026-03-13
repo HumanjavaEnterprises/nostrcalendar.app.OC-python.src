@@ -1,7 +1,7 @@
 ---
 name: nostrcalendar
 description: Nostr-native scheduling — manage availability, book meetings, negotiate times over relay
-version: 0.1.0
+version: 0.1.1
 metadata:
   openclaw:
     requires:
@@ -11,7 +11,7 @@ metadata:
       - kind: uv
         package: nostrcalendar
         bins: []
-    homepage: https://github.com/HumanjavaEnterprises/nostrcal.app.OC-python.src
+    homepage: https://github.com/HumanjavaEnterprises/nostrcalendar.app.OC-python.src
 ---
 
 # NostrCalendar — Sovereign Scheduling for AI Agents
