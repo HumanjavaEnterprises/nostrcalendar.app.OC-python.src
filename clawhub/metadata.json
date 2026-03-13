@@ -1,6 +1,6 @@
 {
-  "slug": "nostrcal",
-  "name": "NostrCal",
+  "slug": "nostrcalendar",
+  "name": "NostrCalendar",
   "version": "0.1.0",
   "summary": "Nostr-native scheduling — manage availability, book meetings, and negotiate times over relay",
   "author": {
@@ -21,7 +21,7 @@
     "sovereign"
   ],
   "install": {
-    "pip": "nostrcal"
+    "pip": "nostrcalendar"
   },
   "requires": {
     "python": ">=3.10"

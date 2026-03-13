@@ -1,4 +1,4 @@
-# NostrCal for OpenClaw
+# NostrCalendar for OpenClaw
 
 **Give your AI agent a calendar.**
 
@@ -21,7 +21,7 @@ NostrCal stores availability as Nostr events on your relay. Your AI agent reads 
 ## Install
 
 ```bash
-pip install nostrcal
+pip install nostrcalendar
 ```
 
 ## Quick Start
@@ -84,7 +84,7 @@ for date, slots in mutual.items():
 
 ## OpenClaw Skill
 
-NostrCal is published on [ClawHub](https://loginwithnostr.com/openclaw) as the `nostrcal` skill. Install it in your OpenClaw agent to give it scheduling capabilities.
+NostrCalendar is published on [ClawHub](https://loginwithnostr.com/openclaw) as the `nostrcalendar` skill. Install it in your OpenClaw agent to give it scheduling capabilities.
 
 ## License
 

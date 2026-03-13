@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "nostrcal"
+name = "nostrcalendar"
 version = "0.1.0"
 description = "Nostr-native scheduling for OpenClaw AI agents — read availability, book meetings, negotiate times over relay"
 readme = "README.md"

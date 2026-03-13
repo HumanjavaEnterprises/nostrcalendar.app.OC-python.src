@@ -1,5 +1,5 @@
 ---
-name: nostrcal
+name: nostrcalendar
 description: Nostr-native scheduling — manage availability, book meetings, negotiate times over relay
 version: 0.1.0
 metadata:
@@ -9,19 +9,19 @@ metadata:
         - pip
     install:
       - kind: uv
-        package: nostrcal
+        package: nostrcalendar
         bins: []
     homepage: https://github.com/HumanjavaEnterprises/nostrcal.app.OC-python.src
 ---
 
-# NostrCal — Sovereign Scheduling for AI Agents
+# NostrCalendar — Sovereign Scheduling for AI Agents
 
 Give your AI agent the ability to manage calendars, publish availability, accept bookings, and negotiate meeting times — all over Nostr relays with no centralized server.
 
 ## Install
 
 ```bash
-pip install nostrcal
+pip install nostrcalendar
 ```
 
 ## Core Capabilities
