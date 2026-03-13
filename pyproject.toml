@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nostrcal"
+version = "0.1.0"
+description = "Nostr-native scheduling for OpenClaw AI agents — read availability, book meetings, negotiate times over relay"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Humanjava Enterprises", email = "dev@humanjava.com" },
+]
+keywords = [
+    "nostr",
+    "calendar",
+    "scheduling",
+    "openclaw",
+    "ai",
+    "nip-52",
+    "sovereign",
+    "availability",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Communications",
+    "Topic :: Office/Business :: Scheduling",
+]
+dependencies = [
+    "nostrkey>=0.1.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+
+[project.urls]
+Homepage = "https://loginwithnostr.com/openclaw"
+Repository = "https://github.com/HumanjavaEnterprises/nostrcal.app.OC-python.src"
+Documentation = "https://loginwithnostr.com/openclaw"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nostrcal"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
