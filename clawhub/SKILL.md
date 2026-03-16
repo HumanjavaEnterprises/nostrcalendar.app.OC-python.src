@@ -1,7 +1,7 @@
 ---
 name: nostrcalendar
 description: Nostr-native scheduling — manage availability, book meetings, negotiate times over relay
-version: 0.2.0
+version: 0.2.1
 metadata:
   openclaw:
     requires:
