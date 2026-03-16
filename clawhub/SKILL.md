@@ -130,6 +130,52 @@ await propose_times(my_agent, other_pubkey, relay_url, dates, title="Collab sync
 | Propose times to another agent | `negotiate` | `propose_times` |
 | Respond to a proposal | `negotiate` | `respond_to_proposal` |
 
+## Response Format
+
+### TimeSlot (returned by `get_free_slots()`)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `start` | `str` | Start time in HH:MM format |
+| `end` | `str` | End time in HH:MM format |
+
+### BookingRequest (from DMs)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `requester_pubkey` | `str` | Hex pubkey of the person requesting |
+| `requested_start` | `int` | Unix timestamp |
+| `requested_end` | `int` | Unix timestamp |
+| `title` | `str` | Meeting title |
+| `message` | `str` | Optional message from requester |
+| `status` | `BookingStatus` | PENDING, ACCEPTED, DECLINED, or CANCELLED |
+
+### CalendarEvent (from `accept_booking()`)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `d_tag` | `str` | Unique replaceable event identifier |
+| `title` | `str` | Event title (encrypted in content) |
+| `start` | `int` | Unix timestamp |
+| `end` | `int` | Unix timestamp |
+| `location` | `str` | Optional (encrypted) |
+| `description` | `str` | Optional (encrypted) |
+| `participants` | `list[str]` | Hex pubkeys of invited participants |
+
+### Return Types by Function
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `publish_availability()` | `str` | Event ID |
+| `get_free_slots()` | `list[TimeSlot]` | Available slots (empty if none) |
+| `get_availability()` | `AvailabilityRule \| None` | Published rules, or None |
+| `create_booking()` | `str` | Event ID of booking request DM |
+| `accept_booking()` | `tuple[str, str]` | (calendar_event_id, confirmation_dm_id) |
+| `decline_booking()` | `str` | Event ID of decline DM |
+| `cancel_event()` | `str` | Event ID of deletion (NIP-09) |
+| `find_mutual_availability()` | `dict[str, list[TimeSlot]]` | Date string → free slots |
+| `propose_times()` | `str` | Event ID of proposal DM |
+
 ## Nostr NIPs Used
 
 | NIP | Purpose |
