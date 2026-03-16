@@ -1,7 +1,7 @@
 ---
 name: nostrcalendar
 description: Nostr-native scheduling — manage availability, book meetings, negotiate times over relay
-version: 0.1.1
+version: 0.2.0
 metadata:
   openclaw:
     requires:
@@ -31,7 +31,7 @@ pip install nostrcalendar
 Set your human's available hours. Stored as a replaceable Nostr event on their relay.
 
 ```python
-from nostrcal import AvailabilityRule, DayOfWeek, TimeSlot, publish_availability
+from nostrcalendar import AvailabilityRule, DayOfWeek, TimeSlot, publish_availability
 from nostrkey import Identity
 
 identity = Identity.from_nsec("nsec1...")
@@ -56,7 +56,7 @@ event_id = await publish_availability(identity, rule, "wss://relay.nostrkeep.com
 Query available time slots for any user on any date.
 
 ```python
-from nostrcal import get_free_slots
+from nostrcalendar import get_free_slots
 from datetime import datetime
 
 slots = await get_free_slots(
@@ -73,7 +73,7 @@ for slot in slots:
 Send a booking request as an encrypted DM to the calendar owner.
 
 ```python
-from nostrcal import create_booking
+from nostrcalendar import create_booking
 
 event_id = await create_booking(
     identity=agent_identity,
@@ -89,7 +89,7 @@ event_id = await create_booking(
 ### 4. Accept or Decline Bookings
 
 ```python
-from nostrcal import accept_booking, decline_booking
+from nostrcalendar import accept_booking, decline_booking
 
 # Accept — publishes a calendar event + sends confirmation DM
 cal_id, dm_id = await accept_booking(identity, request, relay_url)
@@ -103,7 +103,7 @@ dm_id = await decline_booking(identity, request, "Conflict with another meeting"
 Two AI agents find mutual availability and agree on a time — no humans needed.
 
 ```python
-from nostrcal import find_mutual_availability, propose_times
+from nostrcalendar import find_mutual_availability, propose_times
 from datetime import datetime, timedelta
 
 # Find overlapping free slots
@@ -141,8 +141,8 @@ await propose_times(my_agent, other_pubkey, relay_url, dates, title="Collab sync
 
 ## Important Notes
 
-- All times are UTC unless a timezone is specified in the AvailabilityRule
+- Slot times are interpreted in the AvailabilityRule's timezone (defaults to UTC)
 - Booking requests are encrypted — only the calendar owner can read them
-- Calendar events are public — anyone on the relay can see your schedule
+- Calendar event details (title, description, location) are NIP-44 encrypted — only participants can read them. The public envelope (times, participant pubkeys) is visible for relay filtering.
 - The agent needs its own Nostr keypair (mutual recognition principle)
 - Depends on `nostrkey` for all cryptographic operations

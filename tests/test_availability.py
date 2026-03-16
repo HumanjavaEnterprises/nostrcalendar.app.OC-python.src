@@ -2,8 +2,8 @@
 
 from datetime import datetime, timezone
 
-from nostrcal.types import AvailabilityRule, CalendarEvent, DayOfWeek, TimeSlot
-from nostrcal.availability import compute_free_slots
+from nostrcalendar.types import AvailabilityRule, CalendarEvent, DayOfWeek, TimeSlot
+from nostrcalendar.availability import compute_free_slots
 
 
 def test_compute_free_slots_no_bookings():

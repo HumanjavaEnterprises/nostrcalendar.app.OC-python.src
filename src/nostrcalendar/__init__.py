@@ -8,6 +8,7 @@ from .types import (
     DayOfWeek,
     RSVP,
     TimeSlot,
+    validate_pubkey_hex,
     validate_timestamp,
 )
 from .availability import (
@@ -30,10 +31,13 @@ from .negotiate import (
     propose_times,
     respond_to_proposal,
 )
+from .enclave import CalendarEnclave
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 __all__ = [
+    # Enclave (NSE orchestrator integration)
+    "CalendarEnclave",
     # Types
     "AvailabilityRule",
     "BookingRequest",
@@ -42,6 +46,7 @@ __all__ = [
     "DayOfWeek",
     "RSVP",
     "TimeSlot",
+    "validate_pubkey_hex",
     "validate_timestamp",
     # Availability
     "compute_free_slots",

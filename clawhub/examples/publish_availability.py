@@ -2,7 +2,7 @@
 
 import asyncio
 from nostrkey import Identity
-from nostrcal import AvailabilityRule, DayOfWeek, TimeSlot, publish_availability
+from nostrcalendar import AvailabilityRule, DayOfWeek, TimeSlot, publish_availability
 
 
 async def main():

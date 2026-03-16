@@ -12,7 +12,7 @@ from nostrkey.relay import RelayClient
 from nostrkey.crypto import encrypt
 
 from .availability import get_free_slots
-from .types import TimeSlot
+from .types import TimeSlot, validate_pubkey_hex
 
 
 async def propose_times(
@@ -39,6 +39,7 @@ async def propose_times(
     Returns:
         The event ID of the proposal DM.
     """
+    validate_pubkey_hex(target_pubkey, "target_pubkey")
     # Gather free slots across all requested dates
     available: dict[str, list[dict]] = {}
     for date in dates:
@@ -48,7 +49,7 @@ async def propose_times(
             available[date_key] = [s.to_dict() for s in slots]
 
     proposal = {
-        "type": "nostrcal:proposal",
+        "type": "nostrcalendar:proposal",
         "title": title,
         "message": message,
         "available_slots": available,
@@ -96,8 +97,9 @@ async def respond_to_proposal(
     Returns:
         The event ID of the response DM.
     """
+    validate_pubkey_hex(proposer_pubkey, "proposer_pubkey")
     response = {
-        "type": "nostrcal:proposal_response",
+        "type": "nostrcalendar:proposal_response",
         "accepted": accept,
         "selected_date": selected_date if accept else None,
         "selected_slot": selected_slot.to_dict() if accept else None,
@@ -143,6 +145,7 @@ async def find_mutual_availability(
     Returns:
         Dict mapping date strings to lists of mutually free TimeSlots.
     """
+    validate_pubkey_hex(other_pubkey, "other_pubkey")
     mutual: dict[str, list[TimeSlot]] = {}
 
     for date in dates:

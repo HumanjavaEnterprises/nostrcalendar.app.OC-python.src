@@ -29,7 +29,7 @@ pip install nostrcalendar
 ```python
 import asyncio
 from nostrkey import Identity
-from nostrcal import (
+from nostrcalendar import (
     AvailabilityRule, DayOfWeek, TimeSlot,
     publish_availability, get_free_slots, create_booking,
 )
@@ -62,7 +62,7 @@ asyncio.run(main())
 ## Agent-to-Agent Negotiation
 
 ```python
-from nostrcal import find_mutual_availability
+from nostrcalendar import find_mutual_availability
 from datetime import datetime, timedelta
 
 dates = [datetime(2026, 3, d) for d in range(15, 20)]

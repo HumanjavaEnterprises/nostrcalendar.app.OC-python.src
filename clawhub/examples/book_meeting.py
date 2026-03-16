@@ -3,7 +3,7 @@
 import asyncio
 from datetime import datetime
 from nostrkey import Identity
-from nostrcal import get_free_slots, create_booking
+from nostrcalendar import get_free_slots, create_booking
 
 
 async def main():

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nostrcalendar"
-version = "0.1.1"
+version = "0.2.0"
 description = "Nostr-native scheduling for OpenClaw AI agents — read availability, book meetings, negotiate times over relay"
 readme = "README.md"
 license = "MIT"
@@ -50,7 +50,7 @@ Repository = "https://github.com/HumanjavaEnterprises/nostrcalendar.app.OC-pytho
 Documentation = "https://loginwithnostr.com/openclaw"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/nostrcal"]
+packages = ["src/nostrcalendar"]
 
 [tool.ruff]
 target-version = "py310"

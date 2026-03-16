@@ -13,10 +13,14 @@ from nostrkey import Identity
 from nostrkey.relay import RelayClient
 from nostrkey.crypto import encrypt, decrypt
 
-from .types import BookingRequest, BookingStatus, CalendarEvent, RSVP
-
-KIND_TIME_CALENDAR_EVENT = 31923
-KIND_RSVP = 31925
+from .types import (
+    BookingRequest,
+    CalendarEvent,
+    RSVP,
+    KIND_TIME_CALENDAR_EVENT,
+    KIND_RSVP,
+    validate_pubkey_hex,
+)
 
 
 async def create_booking(
@@ -42,6 +46,7 @@ async def create_booking(
     Returns:
         The event ID of the sent booking request.
     """
+    validate_pubkey_hex(calendar_owner_pubkey, "calendar_owner_pubkey")
     request = BookingRequest(
         requester_pubkey=identity.public_key_hex,
         requested_start=start,
@@ -113,12 +118,9 @@ async def accept_booking(
         tags=cal_event.to_tags(),
     )
 
-    async with RelayClient(relay_url) as relay:
-        await relay.publish(signed_event)
-
     # Send confirmation DM
     confirmation = {
-        "type": "nostrcal:booking_confirmation",
+        "type": "nostrcalendar:booking_confirmation",
         "status": "accepted",
         "event_d_tag": d_tag,
         "start": request.requested_start,
@@ -137,7 +139,9 @@ async def accept_booking(
         tags=[["p", request.requester_pubkey]],
     )
 
+    # Publish both events over a single relay connection
     async with RelayClient(relay_url) as relay:
+        await relay.publish(signed_event)
         await relay.publish(signed_dm)
 
     return signed_event.id, signed_dm.id
@@ -163,6 +167,7 @@ def decrypt_calendar_event(
     Returns:
         A CalendarEvent with both public and private fields populated.
     """
+    validate_pubkey_hex(event_pubkey, "event_pubkey")
     decrypted = decrypt(encrypted_content, identity.private_key_hex, event_pubkey)
     try:
         private_content = json.loads(decrypted)
@@ -191,7 +196,7 @@ async def decline_booking(
         The event ID of the decline notification.
     """
     decline = {
-        "type": "nostrcal:booking_confirmation",
+        "type": "nostrcalendar:booking_confirmation",
         "status": "declined",
         "start": request.requested_start,
         "end": request.requested_end,

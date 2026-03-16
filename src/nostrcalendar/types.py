@@ -1,8 +1,17 @@
 """Data types for NostrCalendar — availability rules, calendar events, bookings."""
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+# Nostr event kind constants (shared across modules)
+KIND_APP_DATA = 30078  # NIP-78 replaceable event for app-specific data
+KIND_TIME_CALENDAR_EVENT = 31923  # NIP-52 time-based calendar event
+KIND_RSVP = 31925  # NIP-52 calendar event RSVP
+
+_TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+_PUBKEY_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 
 # Timestamp boundaries: 2020-01-01 00:00:00 UTC and 2100-01-01 00:00:00 UTC
 _MIN_TIMESTAMP = 1_577_836_800
@@ -66,6 +75,28 @@ class DayOfWeek(Enum):
     SUNDAY = 6
 
 
+def _validate_time(value: str, name: str = "time") -> None:
+    """Validate a time string is in HH:MM 24-hour format."""
+    if not isinstance(value, str) or not _TIME_RE.match(value):
+        raise ValueError(f"{name} must be in HH:MM 24-hour format (e.g. '09:00'), got {value!r}")
+
+
+def validate_pubkey_hex(value: str, name: str = "pubkey") -> None:
+    """Validate that a value is a 64-character lowercase hex string (Nostr pubkey).
+
+    Args:
+        value: The hex string to validate.
+        name: Human-readable name for error messages.
+
+    Raises:
+        ValueError: If the value is not a valid hex pubkey.
+    """
+    if not isinstance(value, str) or not _PUBKEY_HEX_RE.match(value):
+        raise ValueError(
+            f"{name} must be a 64-character lowercase hex string, got {value!r}"
+        )
+
+
 @dataclass
 class TimeSlot:
     """A window of availability within a day.
@@ -74,6 +105,14 @@ class TimeSlot:
     """
     start: str
     end: str
+
+    def __post_init__(self) -> None:
+        _validate_time(self.start, "start")
+        _validate_time(self.end, "end")
+        if self.start >= self.end:
+            raise ValueError(
+                f"TimeSlot start ({self.start}) must be before end ({self.end})"
+            )
 
     def to_dict(self) -> dict:
         return {"start": self.start, "end": self.end}
@@ -87,7 +126,7 @@ class TimeSlot:
 class AvailabilityRule:
     """Defines when someone is available for bookings.
 
-    Stored as a replaceable event (kind 30078) with d-tag "nostrcal/availability".
+    Stored as a replaceable event (kind 30078) with d-tag "nostrcalendar/availability".
     """
     slots: dict[DayOfWeek, list[TimeSlot]] = field(default_factory=dict)
     slot_duration_minutes: int = 30
@@ -100,9 +139,16 @@ class AvailabilityRule:
     _MAX_SLOT_DURATION = 1440  # 24 hours in minutes
     _MAX_BUFFER = 1440
     _MAX_PER_DAY = 1000
+    _MAX_WINDOWS_PER_DAY = 48  # Max availability windows per day
 
     def __post_init__(self) -> None:
         _validate_timezone(self.timezone)
+        for day, windows in self.slots.items():
+            if len(windows) > self._MAX_WINDOWS_PER_DAY:
+                raise ValueError(
+                    f"Too many availability windows for {day.name} ({len(windows)}). "
+                    f"Maximum is {self._MAX_WINDOWS_PER_DAY} per day."
+                )
         if not isinstance(self.slot_duration_minutes, int) or self.slot_duration_minutes < 1:
             raise ValueError(
                 f"slot_duration_minutes must be a positive integer, got {self.slot_duration_minutes}"
@@ -198,6 +244,12 @@ class CalendarEvent:
     def __post_init__(self) -> None:
         validate_timestamp(self.start, "start")
         validate_timestamp(self.end, "end")
+        if self.start >= self.end:
+            raise ValueError(
+                f"CalendarEvent start ({self.start}) must be before end ({self.end})"
+            )
+        for pubkey in self.participants:
+            validate_pubkey_hex(pubkey, "participant pubkey")
 
     def to_tags(self) -> list[list[str]]:
         """Convert to NIP-52 event tags (public envelope only).
@@ -266,6 +318,9 @@ class CalendarEvent:
         return cls.from_tags_and_content(tags, None)
 
 
+_VALID_RSVP_STATUSES = {"accepted", "declined", "tentative"}
+
+
 @dataclass
 class RSVP:
     """An RSVP response to a calendar event (NIP-52 kind 31925).
@@ -279,6 +334,14 @@ class RSVP:
     event_pubkey: str
     status: str = "accepted"
 
+    def __post_init__(self) -> None:
+        validate_pubkey_hex(self.event_pubkey, "event_pubkey")
+        if self.status not in _VALID_RSVP_STATUSES:
+            raise ValueError(
+                f"RSVP status must be one of {sorted(_VALID_RSVP_STATUSES)}, "
+                f"got {self.status!r}"
+            )
+
     def to_tags(self) -> list[list[str]]:
         return [
             ["d", self.event_d_tag],
@@ -290,7 +353,7 @@ class RSVP:
 
 @dataclass
 class BookingRequest:
-    """A request to book a time slot, sent as an encrypted DM (NIP-17).
+    """A request to book a time slot, sent as an encrypted DM (NIP-04).
 
     The agent receives these and can accept/decline based on availability rules.
     """
@@ -302,12 +365,18 @@ class BookingRequest:
     status: BookingStatus = BookingStatus.PENDING
 
     def __post_init__(self) -> None:
+        validate_pubkey_hex(self.requester_pubkey, "requester_pubkey")
         validate_timestamp(self.requested_start, "requested_start")
         validate_timestamp(self.requested_end, "requested_end")
+        if self.requested_start >= self.requested_end:
+            raise ValueError(
+                f"BookingRequest start ({self.requested_start}) must be before "
+                f"end ({self.requested_end})"
+            )
 
     def to_dict(self) -> dict:
         return {
-            "type": "nostrcal:booking_request",
+            "type": "nostrcalendar:booking_request",
             "requester": self.requester_pubkey,
             "start": self.requested_start,
             "end": self.requested_end,

@@ -1,33 +1,48 @@
 """Availability management — publish and query free/busy slots on Nostr relays."""
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from nostrkey import Identity
 from nostrkey.relay import RelayClient
 
-from .types import AvailabilityRule, CalendarEvent, DayOfWeek, TimeSlot
+from .types import (
+    AvailabilityRule,
+    CalendarEvent,
+    DayOfWeek,
+    TimeSlot,
+    KIND_APP_DATA,
+    KIND_TIME_CALENDAR_EVENT,
+    validate_pubkey_hex,
+)
 
-# Replaceable event kind for app-specific data (NIP-78)
-KIND_APP_DATA = 30078
-# NIP-52 time-based calendar event
-KIND_TIME_CALENDAR_EVENT = 31923
-
-AVAILABILITY_D_TAG = "nostrcal/availability"
+AVAILABILITY_D_TAG = "nostrcalendar/availability"
 
 
-async def _query_events(relay_url: str, filters: dict) -> list:
+_MAX_EVENTS = 1000  # Safety limit to prevent memory exhaustion from malicious relays
+
+
+async def _query_events(relay_url: str, filters: dict, max_events: int = _MAX_EVENTS) -> list:
     """Subscribe and collect all events until EOSE.
 
     Security note: Events returned here are NOT signature-verified by this SDK.
     Signature verification is the consumer's responsibility — the relay may
     return forged or replayed events. Consumers SHOULD call
     ``nostrkey.verify_event()`` on each event before trusting its content.
+
+    Args:
+        relay_url: The relay URL to query.
+        filters: NIP-01 subscription filters.
+        max_events: Maximum number of events to collect (default 1000).
+            Prevents memory exhaustion from relays that return unbounded results.
     """
     events = []
     async with RelayClient(relay_url) as relay:
         async for event in relay.subscribe([filters]):
             events.append(event)
+            if len(events) >= max_events:
+                break
     return events
 
 
@@ -70,6 +85,7 @@ async def get_availability(
     Returns:
         The AvailabilityRule if found, None otherwise.
     """
+    validate_pubkey_hex(pubkey_hex, "pubkey_hex")
     filters = {
         "kinds": [KIND_APP_DATA],
         "authors": [pubkey_hex],
@@ -108,6 +124,7 @@ async def get_booked_events(
     Returns:
         List of CalendarEvent objects.
     """
+    validate_pubkey_hex(pubkey_hex, "pubkey_hex")
     filters: dict = {
         "kinds": [KIND_TIME_CALENDAR_EVENT],
         "authors": [pubkey_hex],
@@ -130,6 +147,7 @@ def compute_free_slots(
     """Compute available time slots for a given date.
 
     Takes availability rules and existing bookings, returns what's still open.
+    Slot times are interpreted in the rule's timezone.
 
     Args:
         rule: The availability rules.
@@ -145,14 +163,17 @@ def compute_free_slots(
     if not day_slots:
         return []
 
-    # Build the day's start-of-day timestamp for comparison
-    day_start = datetime(date.year, date.month, date.day, tzinfo=timezone.utc)
+    # Use the rule's timezone for interpreting slot times
+    tz = ZoneInfo(rule.timezone)
+    day_start = datetime(date.year, date.month, date.day, tzinfo=tz)
 
     # Count existing bookings for the day
     day_end = day_start + timedelta(days=1)
+    day_start_ts = int(day_start.timestamp())
+    day_end_ts = int(day_end.timestamp())
     day_bookings = [
         b for b in booked
-        if b.start >= int(day_start.timestamp()) and b.start < int(day_end.timestamp())
+        if b.start >= day_start_ts and b.start < day_end_ts
     ]
 
     if len(day_bookings) >= rule.max_per_day:
@@ -206,11 +227,14 @@ async def get_free_slots(
     Returns:
         List of available TimeSlot objects.
     """
+    validate_pubkey_hex(pubkey_hex, "pubkey_hex")
     rule = await get_availability(pubkey_hex, relay_url)
     if rule is None:
         return []
 
-    day_start = datetime(date.year, date.month, date.day, tzinfo=timezone.utc)
+    # Use the rule's timezone for day boundaries
+    tz = ZoneInfo(rule.timezone)
+    day_start = datetime(date.year, date.month, date.day, tzinfo=tz)
     day_end = day_start + timedelta(days=1)
 
     booked = await get_booked_events(

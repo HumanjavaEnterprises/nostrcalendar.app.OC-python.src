@@ -3,7 +3,7 @@
 import asyncio
 from datetime import datetime, timedelta
 from nostrkey import Identity
-from nostrcal import find_mutual_availability, propose_times
+from nostrcalendar import find_mutual_availability, propose_times
 
 
 async def main():
