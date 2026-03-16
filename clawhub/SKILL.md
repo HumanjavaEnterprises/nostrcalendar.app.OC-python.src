@@ -33,8 +33,9 @@ Set your human's available hours. Stored as a replaceable Nostr event on their r
 ```python
 from nostrcalendar import AvailabilityRule, DayOfWeek, TimeSlot, publish_availability
 from nostrkey import Identity
+import os
 
-identity = Identity.from_nsec("nsec1...")
+identity = Identity.from_nsec(os.environ["NOSTR_NSEC"])  # never hardcode
 rule = AvailabilityRule(
     slots={
         DayOfWeek.MONDAY: [TimeSlot("09:00", "12:00"), TimeSlot("14:00", "17:00")],
@@ -141,6 +142,7 @@ await propose_times(my_agent, other_pubkey, relay_url, dates, title="Collab sync
 
 ## Important Notes
 
+- **Never hardcode an nsec in your code.** Load it from an environment variable or encrypted file using `Identity.load()`. The `nsec1...` in examples above is a placeholder.
 - Slot times are interpreted in the AvailabilityRule's timezone (defaults to UTC)
 - Booking requests are encrypted — only the calendar owner can read them
 - Calendar event details (title, description, location) are NIP-44 encrypted — only participants can read them. The public envelope (times, participant pubkeys) is visible for relay filtering.
