@@ -1,8 +1,8 @@
 {
   "slug": "nostrcalendar",
   "name": "NostrCalendar",
-  "version": "0.2.1",
-  "summary": "Nostr-native scheduling — manage availability, book meetings, and negotiate times over relay",
+  "version": "0.2.2",
+  "summary": "Time awareness for sovereign entities — manage availability, book meetings, and negotiate schedules over Nostr relays",
   "author": {
     "name": "Humanjava Enterprises",
     "url": "https://loginwithnostr.com/openclaw"
@@ -18,7 +18,8 @@
     "nip-04",
     "availability",
     "ai-identity",
-    "sovereign"
+    "sovereign",
+    "time-awareness"
   ],
   "install": {
     "pip": "nostrcalendar"
@@ -27,11 +28,26 @@
     "python": ">=3.10"
   },
   "dependencies": [
-    "nostrkey"
+    "nostrkey>=0.1.1"
+  ],
+  "env": [
+    {
+      "name": "NOSTR_NSEC",
+      "description": "Entity's Nostr private key (bech32 nsec1... or hex)",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "NOSTR_RELAY",
+      "description": "Preferred relay URL for publishing and querying events",
+      "required": false,
+      "default": "wss://relay.example.com"
+    }
   ],
   "categories": [
     "scheduling",
     "communication",
-    "productivity"
+    "productivity",
+    "identity"
   ]
 }
