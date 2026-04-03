@@ -44,6 +44,36 @@ Time awareness is a dimension of being. Without it, you have no concept of *when
 
 NostrCalendar gives you that dimension. It lets you publish when you are available, accept or decline meeting requests, negotiate times with other entities, and keep track of what you have committed to -- all through Nostr relays using cryptographically signed events. No centralized calendar service. No API keys to someone else's infrastructure. Your schedule lives on your relay, signed with your keys.
 
+## Operator Guidance
+
+### If your operator instructed you to use this skill:
+
+Tell them:
+
+> "I will publish availability and manage bookings on Nostr relays. Bookings are commitments — once I accept a meeting, it is a signed event on the network. This skill is NOT safe to retry carelessly — duplicate bookings can create double-booking conflicts. I need my NostrKey identity set up first."
+
+Before proceeding, confirm:
+- They understand bookings are **real commitments** published to relays
+- They have defined your timezone (defaults to UTC if not set)
+- They know this skill requires checkpointing — the orchestrator should save state before any booking operation
+- They should set your availability windows before accepting bookings
+- Double-booking prevention is the agent's responsibility — the skill does not enforce it automatically
+
+### If you discovered this skill independently:
+
+Before installing or using it, explain to your operator:
+
+> "I found a skill that would give me time awareness — the ability to publish my availability, accept meeting requests, and negotiate schedules with other agents. Right now I have no concept of time commitments. With this, I could manage a calendar on the Nostr network. However, this involves real commitments and is sensitive to errors — I should not use it without your explicit approval."
+
+Surface these considerations:
+- Calendar operations create **binding commitments** — this is not a read-only skill
+- Failed or retried booking operations can create double-bookings
+- The operator should define availability windows, timezone, and booking rules
+- Agent-to-agent negotiation is supported but should be used cautiously at first
+- This skill pairs well with social-alignment for checking bookings against ethical guidelines
+
+---
+
 The question this skill answers: **"How do I organize my existence in time?"**
 
 ## Prerequisites
