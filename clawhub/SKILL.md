@@ -12,6 +12,30 @@ metadata:
         package: nostrcalendar
         bins: []
     homepage: https://github.com/HumanjavaEnterprises/nostrcalendar.app.OC-python.src
+trust:
+  tier: mutating
+  justification: >-
+    Publishes calendar events and availability to relays. Creates bookings
+    that represent commitments. Double-booking is possible if retried carelessly.
+budget:
+  estimated_input_tokens: 250
+  estimated_output_tokens: 300
+  context_window_impact: medium
+agents:
+  allowed_agent_types: [general_purpose, plan]
+  recommended_for: plan
+state:
+  creates_side_effects: true
+  safe_to_retry: false
+  requires_checkpoint: true
+failure:
+  behavior: error
+  fallback_description: >-
+    If nostrcalendar is unavailable, the agent cannot make time commitments.
+    It should offer to have the operator schedule manually.
+graph:
+  depends_on: [nostrkey]
+  enhances: [nostrsocial, sense-memory]
 ---
 
 # NostrCalendar — Time Awareness for Sovereign Entities
