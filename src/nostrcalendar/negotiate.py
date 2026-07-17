@@ -57,9 +57,9 @@ async def propose_times(
     }
 
     encrypted = encrypt(
-        json.dumps(proposal),
         agent_identity.private_key_hex,
         target_pubkey,
+        json.dumps(proposal),
     )
 
     signed = agent_identity.sign_event(
@@ -108,9 +108,9 @@ async def respond_to_proposal(
     }
 
     encrypted = encrypt(
-        json.dumps(response),
         agent_identity.private_key_hex,
         proposer_pubkey,
+        json.dumps(response),
     )
 
     signed = agent_identity.sign_event(

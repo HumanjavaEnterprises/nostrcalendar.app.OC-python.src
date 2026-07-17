@@ -9,10 +9,9 @@ the enclave's job is to hold state and execute actions.
 from __future__ import annotations
 
 import time
-from datetime import datetime
 from typing import Optional
 
-from .types import AvailabilityRule, CalendarEvent, TimeSlot
+from .types import AvailabilityRule, CalendarEvent
 
 
 class CalendarEnclave:
