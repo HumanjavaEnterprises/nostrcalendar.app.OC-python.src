@@ -17,14 +17,14 @@ pytest -v
   - `booking.py` — create/accept/decline bookings, cancel events, send RSVPs (NIP-04 encrypted DMs)
   - `negotiate.py` — agent-to-agent scheduling negotiation (propose times, respond, find mutual availability)
   - `enclave.py` — CalendarEnclave (NSE orchestrator integration — the Time pillar organ)
-- `tests/` — pytest suite (29 tests)
+- `tests/` — pytest suite (71 tests)
 - `clawhub/` — OpenClaw skill metadata
 - `examples/` — runnable examples (publish, book, negotiate)
 
 ## Conventions
 
 - Python 3.10+, hatchling build, ruff linter (100 char line length)
-- Dependency: `nostrkey>=0.1.1` only
+- Dependency: `nostrkey>=0.3.0` only
 - Import matches package name: `pip install nostrcalendar` → `import nostrcalendar`
 - All pubkeys validated as 64-char lowercase hex at every entry point
 - All timestamps validated to 2020-2100 range, bools rejected

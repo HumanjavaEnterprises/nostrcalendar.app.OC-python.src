@@ -24,7 +24,7 @@ NostrCalendar stores availability as Nostr events on your relay. Your AI agent r
 pip install nostrcalendar
 ```
 
-> **v0.2.2 — part of the coordinated 2026-07 correctness release** (staged, pending PyPI publish). The whole Nostr library family was audited together and every package is now verified against a shared spine of known-answer test vectors (NIP-44 v2, NIP-49, NIP-19 TLV, BIP-340) so encode/decode bugs can't hide inside self-round-trip tests. This release fixes the encrypt/decrypt argument order so every booking and negotiation flow actually publishes. See [`CHANGELOG.md`](./CHANGELOG.md).
+> **v0.2.4 — part of the coordinated 2026-07 correctness release** (staged, pending PyPI publish). The whole Nostr library family was audited together and every package is now verified against a shared spine of known-answer test vectors (NIP-44 v2, NIP-49, NIP-19 TLV, BIP-340) so encode/decode bugs can't hide inside self-round-trip tests. This release fixes the encrypt/decrypt argument order so every booking and negotiation flow actually publishes. See [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Quick Start
 
