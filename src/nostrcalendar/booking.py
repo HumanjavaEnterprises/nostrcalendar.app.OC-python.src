@@ -56,7 +56,7 @@ async def create_booking(
     )
 
     payload = json.dumps(request.to_dict())
-    encrypted = encrypt(payload, identity.private_key_hex, calendar_owner_pubkey)
+    encrypted = encrypt(identity.private_key_hex, calendar_owner_pubkey, payload)
 
     signed = identity.sign_event(
         kind=4,  # NIP-04 encrypted DM (widely supported fallback)
@@ -106,9 +106,9 @@ async def accept_booking(
     # Encrypt private details (title, description, location) for the participant
     private_content = json.dumps(cal_event.to_private_content())
     encrypted_content = encrypt(
-        private_content,
         identity.private_key_hex,
         request.requester_pubkey,
+        private_content,
     )
 
     # Publish the calendar event with encrypted content + public time tags
@@ -128,9 +128,9 @@ async def accept_booking(
         "title": request.title,
     }
     encrypted = encrypt(
-        json.dumps(confirmation),
         identity.private_key_hex,
         request.requester_pubkey,
+        json.dumps(confirmation),
     )
 
     signed_dm = identity.sign_event(
@@ -168,7 +168,7 @@ def decrypt_calendar_event(
         A CalendarEvent with both public and private fields populated.
     """
     validate_pubkey_hex(event_pubkey, "event_pubkey")
-    decrypted = decrypt(encrypted_content, identity.private_key_hex, event_pubkey)
+    decrypted = decrypt(identity.private_key_hex, event_pubkey, encrypted_content)
     try:
         private_content = json.loads(decrypted)
     except json.JSONDecodeError as exc:
@@ -204,9 +204,9 @@ async def decline_booking(
         "reason": reason,
     }
     encrypted = encrypt(
-        json.dumps(decline),
         identity.private_key_hex,
         request.requester_pubkey,
+        json.dumps(decline),
     )
 
     signed = identity.sign_event(
