@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nostrcalendar"
-version = "0.2.4"
+version = "0.2.5"
 description = "Nostr-native scheduling for OpenClaw AI agents — read availability, book meetings, negotiate times over relay"
 readme = "README.md"
 license = "MIT"
@@ -34,7 +34,7 @@ classifiers = [
     "Topic :: Office/Business :: Scheduling",
 ]
 dependencies = [
-    "nostrkey>=0.3.4",
+    "nostrkey>=0.3.5",
 ]
 
 [project.optional-dependencies]

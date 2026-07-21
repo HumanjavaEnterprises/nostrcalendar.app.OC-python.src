@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.5 — 2026-07-21
+
+### Security
+
+- **Transitive `cryptography` CVE fix.** `cryptography` reaches this package
+  only via `nostrkey`, which previously capped `cryptography<45.0` and shipped
+  the vulnerable 44.0.3 (four advisories: PYSEC-2026-35, PYSEC-2026-2141,
+  GHSA-537c-gmf6-5ccf, and a related OpenSSL fix). The `nostrkey` floor is
+  raised to `>=0.3.5`, whose lifted ceiling resolves `cryptography` 49.0.0.
+
+### Changed
+
+- Runtime dependency floor raised from `nostrkey>=0.3.4` to `nostrkey>=0.3.5`.
+  Verified against the local nostrkey 0.3.5 build: full suite and `pip-audit`
+  green on `cryptography` 49.
+
 ## 0.2.4 — 2026-07-19
 
 Version-drift reconciliation. PyPI published 0.2.3 from another machine
