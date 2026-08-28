@@ -5,7 +5,7 @@
   "summary": "Nostr-native scheduling — manage availability, book meetings, and negotiate schedules over Nostr relays",
   "author": {
     "name": "Humanjava Enterprises",
-    "url": "https://loginwithnostr.com/openclaw"
+    "url": "https://loginwithnostr.com/python-agents"
   },
   "license": "MIT",
   "acceptLicenseTerms": true,

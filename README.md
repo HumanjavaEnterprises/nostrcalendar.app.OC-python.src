@@ -86,7 +86,7 @@ for date, slots in mutual.items():
 
 ## OpenClaw Skill
 
-NostrCalendar is published on [ClawHub](https://loginwithnostr.com/openclaw) as the `nostrcalendar` skill. Install it in your OpenClaw agent to give it scheduling capabilities.
+NostrCalendar is published on [ClawHub](https://loginwithnostr.com/python-agents) as the `nostrcalendar` skill. Install it in your OpenClaw agent to give it scheduling capabilities.
 
 ## License
 
